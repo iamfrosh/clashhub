@@ -1,0 +1,35 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+body{@apply bg-white text-ink font-sans antialiased}
+h1,h2,h3{@apply font-display font-semibold}
+:focus-visible{outline:2px solid #5B4CFF;outline-offset:2px}
+@layer components{
+.btn{@apply inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-full font-medium transition active:scale-95}
+.btn-primary{@apply btn bg-primary text-white hover:brightness-110}
+.btn-ghost{@apply btn border border-line bg-white hover:bg-soft}
+.card{@apply bg-white border border-line rounded-card shadow-card}
+.chip{@apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium}
+}
+@keyframes up{to{transform:translateY(-50%)}}
+@keyframes down{from{transform:translateY(-50%)}to{transform:translateY(0)}}
+.wall-col{animation:up 40s linear infinite}
+.wall-col.rev{animation-name:down;animation-duration:36s}
+.wall:hover .wall-col{animation-play-state:paused}
+.wall-mask{mask-image:linear-gradient(transparent,#000 15%,#000 85%,transparent)}
+@media (prefers-reduced-motion:reduce){.wall-col{animation:none!important}}
+@layer components{.input{@apply w-full min-h-[44px] rounded-xl bg-soft border border-line px-4 focus:bg-white}.label{@apply block text-sm font-medium mb-1}}
+/* ClashHub loader */
+.clash-loader svg{overflow:visible}
+.cl-a,.cl-b{transform-origin:60px 60px;transform-box:view-box}
+.cl-a{animation:cl-a 1.6s cubic-bezier(.6,0,.2,1) infinite}
+.cl-b{animation:cl-b 1.6s cubic-bezier(.6,0,.2,1) infinite}
+.cl-spark{transform-origin:60px 60px;transform-box:view-box;animation:cl-spark 1.6s ease-out infinite;opacity:0}
+.cl-arc{transform-origin:60px 60px;transform-box:view-box;animation:cl-spin 1.6s linear infinite}
+.cl-word{animation:cl-fade 1.6s ease-in-out infinite}
+@keyframes cl-a{0%{transform:rotate(45deg) translateX(-80px);opacity:0}30%{opacity:1}45%,80%{transform:rotate(45deg) translateX(0);opacity:1}100%{transform:rotate(45deg) translateX(0);opacity:0}}
+@keyframes cl-b{0%{transform:rotate(-45deg) translateX(80px);opacity:0}30%{opacity:1}45%,80%{transform:rotate(-45deg) translateX(0);opacity:1}100%{transform:rotate(-45deg) translateX(0);opacity:0}}
+@keyframes cl-spark{0%,42%{transform:scale(0);opacity:0}50%{transform:scale(1.5);opacity:.95}70%,100%{transform:scale(2.4);opacity:0}}
+@keyframes cl-spin{to{transform:rotate(360deg)}}
+@keyframes cl-fade{0%,100%{opacity:.55}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.cl-a{animation:none;transform:rotate(45deg)}.cl-b{animation:none;transform:rotate(-45deg)}.cl-spark,.cl-arc,.cl-word{animation:none}.cl-spark{opacity:0}}
+#splash{animation:splash-safety .4s ease 4s forwards}.no-splash #splash{display:none}
+@keyframes splash-safety{to{opacity:0;visibility:hidden}}

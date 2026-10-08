@@ -1,0 +1,4 @@
+Contact: mailto:security@clashhub.example
+Expires: 2027-09-30T00:00:00.000Z
+Preferred-Languages: en
+# Replace the contact address before launch.

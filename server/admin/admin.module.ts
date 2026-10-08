@@ -1,0 +1,4 @@
+import {Module} from "@nestjs/common";import {MongooseModule} from "@nestjs/mongoose";import {AdminController} from "./admin.controller";
+import {Listing,ListingSchema,Deal,DealSchema,Match,MatchSchema,Community,CommunitySchema,Membership,MembershipSchema,Setting,SettingSchema,Announcement,AnnouncementSchema,Report,ReportSchema,AuditLog,AuditLogSchema,EmailBatch,EmailBatchSchema} from "../common/schemas";
+@Module({imports:[MongooseModule.forFeature([{name:Listing.name,schema:ListingSchema},{name:Deal.name,schema:DealSchema},{name:Match.name,schema:MatchSchema},{name:Community.name,schema:CommunitySchema},{name:Membership.name,schema:MembershipSchema},{name:Setting.name,schema:SettingSchema},{name:Announcement.name,schema:AnnouncementSchema},{name:Report.name,schema:ReportSchema},{name:AuditLog.name,schema:AuditLogSchema},{name:EmailBatch.name,schema:EmailBatchSchema}])],controllers:[AdminController]})
+export class AdminModule{}

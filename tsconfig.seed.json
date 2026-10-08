@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","compilerOptions":{"module":"commonjs","moduleResolution":"node","noEmit":false,"outDir":"./.seed-out","isolatedModules":false,"jsx":"react","incremental":false},"include":["scripts/**/*.ts","server/**/*.ts"],"exclude":["node_modules"]}

@@ -1,0 +1,28 @@
+"use client";
+import Loader from "@/components/Loader";
+import Link from "next/link";import {useCallback,useEffect,useState} from "react";import {useRouter} from "next/navigation";import {api} from "@/lib/api";import {useAuth} from "@/components/AuthProvider";
+function Section({title,children}:{title:string;children:React.ReactNode}){return <section className="card p-5 space-y-3"><h2 className="text-lg">{title}</h2>{children}</section>;}
+export default function Settings(){
+ const r=useRouter();const {user,ready,logout}=useAuth();const [me,setMe]=useState<any>(null);const [m,setM]=useState<Record<string,string>>({});const [f,setF]=useState({email:"",emailPw:"",cur:"",next:"",block:"",delPw:""});
+ const load=useCallback(()=>{api("/users/me").then(setMe).catch(()=>{})},[]);useEffect(()=>{if(user)load()},[user,load]);const set=(k:string)=>(e:any)=>setF({...f,[k]:e.target.value});
+ const run=async(k:string,fn:()=>Promise<any>,ok:string)=>{setM({...m,[k]:""});try{await fn();setM(x=>({...x,[k]:ok}));load();}catch(e:any){setM(x=>({...x,[k]:e.message}))}};
+ if(ready&&!user)return <p className="p-10 text-center"><Link href="/login?next=/settings" className="text-primary">Log in</Link> to open settings.</p>;if(!me)return <div className="p-8"><Loader/></div>;
+ const Msg=({k}:{k:string})=>m[k]?<p role="status" className="text-sm text-muted">{m[k]}</p>:null;
+ return(<div className="mx-auto max-w-xl px-4 py-8 space-y-6"><h1 className="text-3xl">Settings</h1>
+  <Section title="Account"><p className="text-sm">Username: <strong>{me.username}</strong></p><p className="text-sm">Email: <strong>{me.email}</strong> {!me.emailVerified&&<Link href={"/verify?email="+encodeURIComponent(me.email)} className="text-primary ml-2">Verify</Link>}</p>
+   <form className="space-y-2" onSubmit={e=>{e.preventDefault();run("email",async()=>{await api("/users/me/email",{method:"POST",body:JSON.stringify({email:f.email,password:f.emailPw})});r.push("/verify?email="+encodeURIComponent(f.email))},"Code sent")}}>
+    <input type="email" className="input" placeholder="New email" aria-label="New email" value={f.email} onChange={set("email")} required/><input type="password" className="input" placeholder="Current password" aria-label="Current password to change email" value={f.emailPw} onChange={set("emailPw")} required/>
+    <button className="btn-ghost">Change email (re-verification required)</button><Msg k="email"/></form></Section>
+  <Section title="Password"><form className="space-y-2" onSubmit={e=>{e.preventDefault();run("pw",()=>api("/users/me/password",{method:"POST",body:JSON.stringify({current:f.cur,next:f.next})}),"Password updated")}}>
+   <input type="password" className="input" placeholder="Current password" aria-label="Current password" value={f.cur} onChange={set("cur")} required autoComplete="current-password"/><input type="password" minLength={8} className="input" placeholder="New password" aria-label="New password" value={f.next} onChange={set("next")} required autoComplete="new-password"/>
+   <button className="btn-ghost">Update password</button><Msg k="pw"/></form></Section>
+  <Section title="Emails"><label className="flex items-start justify-between gap-4"><span className="text-sm">Announcements and promotions<span className="block text-xs text-muted">Account, security and deal emails are always sent.</span></span>
+   <input type="checkbox" role="switch" className="h-6 w-6 mt-1" checked={!me.marketingOptOut} onChange={e=>run("pref",()=>api("/users/me/prefs",{method:"PATCH",body:JSON.stringify({marketingOptOut:!e.target.checked})}),"Saved")}/></label><Msg k="pref"/></Section>
+  <Section title="Blocked users"><form className="flex gap-2" onSubmit={e=>{e.preventDefault();run("block",()=>api("/users/me/block",{method:"POST",body:JSON.stringify({username:f.block})}),"Blocked").then(()=>setF({...f,block:""}))}}>
+   <input className="input" placeholder="Username" aria-label="Username to block" value={f.block} onChange={set("block")} required/><button className="btn-ghost">Block</button></form><Msg k="block"/>
+   <ul className="space-y-2">{me.blocked?.map((b:any)=><li key={b._id} className="flex justify-between text-sm">{b.username}<button className="text-primary" onClick={()=>run("block",()=>api("/users/me/block/"+b.username,{method:"DELETE"}),"Unblocked")}>Unblock</button></li>)}{!me.blocked?.length&&<li className="text-sm text-muted">No blocked users. Blocked players are hidden from community chat for you.</li>}</ul></Section>
+  <Section title="Your data"><p className="text-sm text-muted">Download a copy of the personal data ClashHub holds about you.</p><button className="btn-ghost" onClick={async()=>{const d=await api("/users/me/export");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:"application/json"}));a.download="clashhub-data.json";a.click();}}>Download my data</button></Section>
+  <Section title="Delete account"><p className="text-sm text-muted">Your profile is anonymised. Match and deal history is kept for dispute handling. This cannot be undone.</p>
+   <form className="space-y-2" onSubmit={e=>{e.preventDefault();if(!confirm("Delete your account permanently?"))return;run("del",async()=>{await api("/users/me",{method:"DELETE",body:JSON.stringify({password:f.delPw})});await logout();r.push("/")},"Deleted")}}>
+    <input type="password" className="input" placeholder="Password" aria-label="Password to confirm deletion" value={f.delPw} onChange={set("delPw")} required/><button className="btn-ghost text-coral">Delete my account</button><Msg k="del"/></form></Section></div>);
+}
